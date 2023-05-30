@@ -1,4 +1,5 @@
 # max turkish stealer anyways skidded content with obf and selling a subscribe option for 12$ a day lmao
+# The obfuscated content on line 428 is explained here https://1275.ru/ioc/1837/pythonrat-iocs/ and it's a rat
 # BLX Stealer   |   blx.#2221
 
 ![Picsart_23-05-10_18-25-19-907](https://github.com/blxstealer/BLX-Stealer/assets/71230025/b5113895-17c0-4f44-a1d0-18ab2ee5a53b)
